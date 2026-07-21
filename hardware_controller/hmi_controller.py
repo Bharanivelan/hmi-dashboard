@@ -21,6 +21,9 @@ def main():
     last_pitch_speed = 0
     last_zoom_state = 0
     
+    last_btn_center = False
+    last_btn_home = False
+    
     POLL_RATE_HZ = 50
     poll_interval = 1.0 / POLL_RATE_HZ
 
@@ -33,30 +36,24 @@ def main():
             # Read hardware state
             state = joystick.read_state()
             
-            # 1. Handle Button (Auto-Center)
-            if state["button_clicked"]:
-                log.info("Button Clicked -> Sending Auto-Center Command")
+            # 1. Handle Center Button (One-shot on press)
+            if state["btn_center"] and not last_btn_center:
+                log.info("Center Button Pressed -> Sending Auto-Center Command")
                 camera.send_center()
+            last_btn_center = state["btn_center"]
             
-            # 2. Handle Rotation (X, Y mapped to Yaw, Pitch)
-            # Map normalized -1.0..1.0 to -100..100
-            yaw_speed = int(state["x"] * 100)
-            pitch_speed = int(state["y"] * 100)
-            
-            # Send rotation if it changed or if it's non-zero
-            # (Continuous sending is sometimes needed by gimbal, but sending on change reduces network load)
-            if (yaw_speed != last_yaw_speed) or (pitch_speed != last_pitch_speed) or (yaw_speed != 0 or pitch_speed != 0):
-                camera.send_rotation_speed(yaw_speed, pitch_speed)
-                last_yaw_speed = yaw_speed
-                last_pitch_speed = pitch_speed
+            # 2. Handle Home Button (One-shot on press)
+            if state["btn_home"] and not last_btn_home:
+                log.info("Home Button Pressed -> Resetting Zoom to 1x")
+                camera.send_absolute_zoom(1, 0)
+            last_btn_home = state["btn_home"]
 
-            # 3. Handle Zoom (Z mapped to Zoom In/Out)
-            z_val = state["z"]
+            # 3. Handle Zoom Buttons (Continuous while pressed)
             zoom_cmd = 0
-            if z_val > 0.5:
-                zoom_cmd = 1   # Zoom In
-            elif z_val < -0.5:
-                zoom_cmd = -1  # Zoom Out
+            if state["btn_zoom_in"]:
+                zoom_cmd = 1
+            elif state["btn_zoom_out"]:
+                zoom_cmd = -1
             
             if zoom_cmd != last_zoom_state:
                 if zoom_cmd == 1:
@@ -67,6 +64,18 @@ def main():
                     log.info("Zoom Stop")
                 camera.send_zoom(zoom_cmd)
                 last_zoom_state = zoom_cmd
+                
+            # 4. Handle Rotation (Pan mapped to Yaw, Tilt mapped to Pitch)
+            # Map normalized -1.0..1.0 to -100..100
+            yaw_speed = int(state["pan"] * 100)
+            pitch_speed = int(state["tilt"] * 100)
+            
+            # Send rotation if it changed or if it's non-zero
+            # (Continuous sending is sometimes needed by gimbal, but sending on change reduces network load)
+            if (yaw_speed != last_yaw_speed) or (pitch_speed != last_pitch_speed) or (yaw_speed != 0 or pitch_speed != 0):
+                camera.send_rotation_speed(yaw_speed, pitch_speed)
+                last_yaw_speed = yaw_speed
+                last_pitch_speed = pitch_speed
             
             # Sleep to maintain poll rate
             elapsed = time.time() - loop_start

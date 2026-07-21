@@ -145,6 +145,17 @@ class SiyiCameraProtocol:
         """Compatibility wrapper used by the HMI controller."""
         self.center()
 
+    def send_absolute_zoom(self, integer_part: int, fractional_part: int):
+        """
+        Set absolute zoom level (e.g. 1x).
+        CMD_ID: 0x0F
+        Data length: 3 bytes (uint16_t int, uint8_t frac)
+        """
+        payload = struct.pack("<HB", int(integer_part), int(fractional_part))
+        packet = self._build_packet(0x0F, payload)
+        self._send(packet)
+        log.info(f"Sent Absolute Zoom: {integer_part}.{fractional_part}x")
+
     def absolute_angle(self, yaw: float, pitch: float):
         """
         Set gimbal absolute angle.

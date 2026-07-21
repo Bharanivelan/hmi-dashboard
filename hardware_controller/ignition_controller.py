@@ -38,7 +38,9 @@ class IgnitionController:
         os.system("echo 0 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
         
         # Launch Chromium to play the ignition animation
-        os.system("DISPLAY=:0 chromium-browser --kiosk file:///home/pi/hmi-dashboard/ignition.html > /dev/null 2>&1 &")
+        home = os.environ.get("HOME", "/home/suresh")
+        cmd = f"DISPLAY=:0 XAUTHORITY={home}/.Xauthority chromium-browser --kiosk file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
+        os.system(cmd)
 
     def ignition_off(self):
         log.info("Key turned OFF -> Putting display to sleep.")
