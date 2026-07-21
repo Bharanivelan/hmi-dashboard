@@ -36,6 +36,9 @@ class IgnitionController:
         os.system("vcgencmd display_power 1 > /dev/null 2>&1")
         # 3. Try Official Raspberry Pi DSI Touchscreen Backlight
         os.system("echo 0 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
+        
+        # Launch Chromium to play the ignition animation
+        os.system("DISPLAY=:0 chromium-browser --kiosk file:///home/pi/hmi-dashboard/ignition.html > /dev/null 2>&1 &")
 
     def ignition_off(self):
         log.info("Key turned OFF -> Putting display to sleep.")
@@ -47,11 +50,8 @@ class IgnitionController:
         # 3. Try Official Raspberry Pi DSI Touchscreen Backlight
         os.system("echo 1 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
         
-        # We can also kill chromium and restart it to ignition.html so it's ready for next time,
-        # but leaving it on the dashboard is fine too, as waking the screen up is instantaneous.
-        # For true reset, uncomment the below to force restart Chromium to the boot animation:
-        # os.system("killall chromium-browser")
-        # os.system("chromium-browser --kiosk http://localhost:8080/ignition.html &")
+        # Kill chromium so it starts fresh with the animation next time the key is turned ON
+        os.system("killall chromium-browser > /dev/null 2>&1")
 
 if __name__ == "__main__":
     try:
