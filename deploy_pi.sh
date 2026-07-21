@@ -26,8 +26,8 @@ After=network.target
 
 [Service]
 # Replace /home/pi with the actual path to your hardware_controller folder
-ExecStart=/usr/bin/python3 /home/pi/hardware_controller/hmi_controller.py
-WorkingDirectory=/home/pi/
+ExecStart=/usr/bin/python3 /home/pi/hmi-dashboard/hardware_controller/hmi_controller.py
+WorkingDirectory=/home/pi/hmi-dashboard/
 Restart=always
 User=pi
 
@@ -43,8 +43,8 @@ Description=Hardware Ignition Key Monitor
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/hardware_controller/ignition_controller.py
-WorkingDirectory=/home/pi/
+ExecStart=/usr/bin/python3 /home/pi/hmi-dashboard/hardware_controller/ignition_controller.py
+WorkingDirectory=/home/pi/hmi-dashboard/
 Restart=always
 User=pi
 
