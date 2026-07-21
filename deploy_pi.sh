@@ -25,11 +25,11 @@ Description=SIYI Gimbal Joystick Controller
 After=network.target
 
 [Service]
-# Replace /home/pi with the actual path to your hardware_controller folder
-ExecStart=/usr/bin/python3 /home/pi/hmi-dashboard/hardware_controller/hmi_controller.py
-WorkingDirectory=/home/pi/hmi-dashboard/
+# Automatically detect the current path and user
+ExecStart=/usr/bin/python3 $(pwd)/hardware_controller/hmi_controller.py
+WorkingDirectory=$(pwd)/
 Restart=always
-User=pi
+User=${SUDO_USER:-$USER}
 
 [Install]
 WantedBy=multi-user.target
@@ -43,10 +43,10 @@ Description=Hardware Ignition Key Monitor
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/hmi-dashboard/hardware_controller/ignition_controller.py
-WorkingDirectory=/home/pi/hmi-dashboard/
+ExecStart=/usr/bin/python3 $(pwd)/hardware_controller/ignition_controller.py
+WorkingDirectory=$(pwd)/
 Restart=always
-User=pi
+User=${SUDO_USER:-$USER}
 
 [Install]
 WantedBy=multi-user.target
@@ -61,13 +61,5 @@ sudo systemctl restart hmi-ignition.service
 
 echo "✅ Backend Python services are now running permanently in the background!"
 
-# 5. Configure Kiosk Mode
-echo "================================================================"
-echo "⚠️  MANUAL STEP REQUIRED FOR KIOSK ⚠️"
-echo "To make the Raspberry Pi boot to the Ignition Animation:"
-echo "1. Run: nano ~/.config/wayfire.ini  (or /etc/xdg/openbox/autostart)"
-echo "2. Add this exact line to the autostart section:"
-echo "   chromium-browser --kiosk file:///home/pi/hmi-dashboard/ignition.html"
-echo "================================================================"
 
 echo "🎉 Raspberry Pi Setup Complete! The joystick is now live."
