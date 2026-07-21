@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAWKE Ignition Sequence</title>
+    <!-- Premium Aerospace Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505; /* Pitch black space aesthetic */
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        /* The Logo Container */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* The HAWKE Text Animation */
+        .logo-text {
+            font-size: 8rem;
+            font-weight: 900;
+            letter-spacing: -10px; /* Start highly compressed */
+            opacity: 0;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #ffffff 30%, #888888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: tracking-in-expand 2s cubic-bezier(0.215, 0.610, 0.355, 1.000) 0.5s both;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Subtle Glow Behind Text */
+        .glow {
+            position: absolute;
+            width: 300px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            filter: blur(50px);
+            border-radius: 50%;
+            z-index: 1;
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        /* System Initializing Subtext */
+        .subtext {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 15px;
+            color: #888;
+            opacity: 0;
+            animation: fade-in-bottom 1.5s ease-out 2s both;
+        }
+
+        /* Loading Bar */
+        .loading-bar-container {
+            width: 300px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fade-in 0.5s ease-out 2.5s both;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: #ffffff;
+            box-shadow: 0 0 10px #ffffff;
+            animation: load-progress 2s cubic-bezier(0.8, 0, 0.2, 1) 2.5s both;
+        }
+
+        /* Keyframes */
+        @keyframes tracking-in-expand {
+            0% {
+                letter-spacing: -0.5em;
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            40% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 1;
+                letter-spacing: 15px;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 1; }
+        }
+
+        @keyframes fade-in-bottom {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fade-in {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes load-progress {
+            0% { width: 0%; }
+            50% { width: 60%; }
+            100% { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <div class="glow"></div>
+        <div class="logo-text">HAWKE</div>
+    </div>
+    
+    <div class="subtext">SYSTEM INITIALIZING</div>
+
+    <div class="loading-bar-container">
+        <div class="loading-bar"></div>
+    </div>
+
+    <script>
+        // The animation takes exactly 4.5 seconds to finish (0.5s delay + 2s bar + 2s text overlap).
+        // After 4.5 seconds, automatically redirect the browser to the Ubuntu Server Dashboard.
+        // If testing locally, you can change the IP back to localhost.
+        setTimeout(() => {
+            window.location.href = "http://192.168.1.4"; 
+        }, 4500);
+    </script>
+</body>
+</html>
