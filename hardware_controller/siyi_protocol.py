@@ -141,6 +141,10 @@ class SiyiCameraProtocol:
         self._send(packet)
         log.info("Sent Auto-Center command")
 
+    def send_center(self):
+        """Compatibility wrapper used by the HMI controller."""
+        self.center()
+
     def absolute_angle(self, yaw: float, pitch: float):
         """
         Set gimbal absolute angle.

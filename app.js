@@ -607,7 +607,7 @@ const CameraPlayer = (() => {
   // When running ON the Raspberry Pi, localhost works.
   // If accessing from another device on the same LAN, replace with
   // the Pi's IP address, e.g. 'http://192.168.1.100:1984'
-  const GO2RTC_BASE   = 'http://localhost:1984';
+  const GO2RTC_BASE   = `http://${window.location.hostname}:1984`;
   const STREAM_NAME   = 'aerostat_cam';   // must match go2rtc.yaml
   const RECONNECT_MS  = 5000;            // retry interval
 
