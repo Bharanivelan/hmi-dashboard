@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 log = logging.getLogger("ignition")
 
 # TODO: Update this PIN to match the actual hardware wiring!
-IGNITION_PIN = 27 
+IGNITION_PIN = 4 
 
 class IgnitionController:
     def __init__(self, pin=IGNITION_PIN):
