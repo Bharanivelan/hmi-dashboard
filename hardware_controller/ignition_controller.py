@@ -11,9 +11,9 @@ IGNITION_PIN = 27
 
 class IgnitionController:
     def __init__(self, pin=IGNITION_PIN):
-        # We use pull_up=True, meaning the circuit is HIGH by default.
-        # When the physical key switch is turned, it should short the pin to Ground (LOW).
-        self.key_switch = Button(pin, pull_up=True, bounce_time=0.1)
+        # We use pull_up=False, meaning the circuit is LOW (0) by default.
+        # When the physical key switch is turned, it connects to 3.3V and goes HIGH (1).
+        self.key_switch = Button(pin, pull_up=False, bounce_time=0.1)
         
         # Register event callbacks
         self.key_switch.when_pressed = self.ignition_on
@@ -29,13 +29,23 @@ class IgnitionController:
 
     def ignition_on(self):
         log.info("Key turned ON -> Waking up display.")
-        # Wake up the physical HDMI display
-        os.system("vcgencmd display_power 1")
+        # Universal Display WAKEUP (Shotgun approach for all display types)
+        # 1. Try standard X11 DPMS (Works for most GUI displays)
+        os.system("xset -display :0 dpms force on > /dev/null 2>&1")
+        # 2. Try Broadcom HDMI power
+        os.system("vcgencmd display_power 1 > /dev/null 2>&1")
+        # 3. Try Official Raspberry Pi DSI Touchscreen Backlight
+        os.system("echo 0 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
 
     def ignition_off(self):
         log.info("Key turned OFF -> Putting display to sleep.")
-        # Turn off the physical HDMI display to save power
-        os.system("vcgencmd display_power 0")
+        # Universal Display SLEEP (Shotgun approach for all display types)
+        # 1. Try standard X11 DPMS
+        os.system("xset -display :0 dpms force off > /dev/null 2>&1")
+        # 2. Try Broadcom HDMI power
+        os.system("vcgencmd display_power 0 > /dev/null 2>&1")
+        # 3. Try Official Raspberry Pi DSI Touchscreen Backlight
+        os.system("echo 1 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
         
         # We can also kill chromium and restart it to ignition.html so it's ready for next time,
         # but leaving it on the dashboard is fine too, as waking the screen up is instantaneous.
