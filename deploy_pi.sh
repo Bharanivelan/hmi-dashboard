@@ -67,7 +67,7 @@ echo "⚠️  MANUAL STEP REQUIRED FOR KIOSK ⚠️"
 echo "To make the Raspberry Pi boot to the Ignition Animation:"
 echo "1. Run: nano ~/.config/wayfire.ini  (or /etc/xdg/openbox/autostart)"
 echo "2. Add this exact line to the autostart section:"
-echo "   chromium-browser --kiosk file:///home/pi/ignition.html"
+echo "   chromium-browser --kiosk file:///home/pi/hmi-dashboard/ignition.html"
 echo "================================================================"
 
 echo "🎉 Raspberry Pi Setup Complete! The joystick is now live."
