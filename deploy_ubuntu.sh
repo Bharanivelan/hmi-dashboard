@@ -17,6 +17,7 @@ sudo rm -rf /var/www/html/*
 sudo cp index.html /var/www/html/
 sudo cp styles.css /var/www/html/
 sudo cp app.js /var/www/html/
+sudo cp ignition.html /var/www/html/
 sudo systemctl restart nginx
 echo "✅ UI is now live at http://192.168.1.4"
 
