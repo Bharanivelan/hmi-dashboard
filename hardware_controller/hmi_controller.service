@@ -1,0 +1,15 @@
+[Unit]
+Description=HMI Hardware Joystick to SIYI Camera Controller
+After=network.target
+
+[Service]
+Type=simple
+# Change the username and path below to match your Raspberry Pi setup
+User=pi
+WorkingDirectory=/home/pi/HMI Dashboard/hardware_controller
+ExecStart=/usr/bin/python3 /home/pi/HMI Dashboard/hardware_controller/hmi_controller.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

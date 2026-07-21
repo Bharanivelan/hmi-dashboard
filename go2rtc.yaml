@@ -1,0 +1,33 @@
+###############################################################
+#  go2rtc.yaml  —  Aerostat HMI Camera Bridge
+#  Place this file on the Raspberry Pi alongside the go2rtc binary.
+#
+#  go2rtc ingests the CEZR10 RTSP stream and re-exposes it as:
+#    • WebRTC  → ultra-low-latency (~150-300 ms) for the browser
+#    • HLS     → fallback for older browsers
+#
+#  USAGE:
+#    ./go2rtc -config go2rtc.yaml
+###############################################################
+
+api:
+  listen: ":1984"       # go2rtc web API / signalling server port
+  origin: "*"           # allow the dashboard page to connect
+
+streams:
+  # ── Main payload camera ──────────────────────────────────────
+  # Replace the URL below with your actual CEZR10 RTSP address.
+  # Common SIYI ZR10 default: rtsp://192.168.144.25:8554/main.264
+  # Ask your team for the exact IP and stream path.
+  aerostat_cam: rtsp://192.168.1.20:8554/main.264
+
+  # ── Optional: second stream at lower resolution ───────────────
+  # aerostat_cam_sub: rtsp://CAMERA_IP:8554/sub.264
+
+webrtc:
+  # ICE candidates — only LAN needed (no internet/STUN for a kiosk)
+  ice_servers:
+    - urls: [stun:stun.l.google.com:19302]   # remove if fully air-gapped
+
+log:
+  level: info
