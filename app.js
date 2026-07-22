@@ -693,10 +693,10 @@ const CameraPlayer = (() => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      // Force go2rtc to transcode the stream to H.264! 
-      // The SIYI ZR10 outputs H.265 by default. Windows laptops can play H.265 natively, 
-      // but Raspberry Pi Chromium completely lacks H.265 support and renders a blank white box.
-      const transcodeSrc = encodeURIComponent(`ffmpeg:${STREAM_NAME}#video=h264`);
+      // We MUST use the SIYI camera's native H.264 sub-stream. 
+      // The main stream is H.265, which Raspberry Pi Chromium cannot decode (resulting in a white screen).
+      // We pass the raw RTSP URL to go2rtc so it acts as a pure proxy without needing ffmpeg!
+      const transcodeSrc = encodeURIComponent("rtsp://192.168.1.20:8554/sub.264");
 
       // Send to go2rtc, receive answer
       const resp = await fetch(
