@@ -19,8 +19,13 @@ def main():
     # State tracking to avoid spamming the same command
     last_yaw_speed = 0
     last_pitch_speed = 0
-    last_zoom_state = 0
     
+    # Acceleration State
+    current_yaw = 0.0
+    current_pitch = 0.0
+    ACCEL_STEP = 4.0 # Ramps up by 4 units per 20ms tick (reaches 100% in 0.5 seconds)
+    
+    last_zoom_state = 0
     last_btn_center = False
     last_btn_home = False
     
@@ -67,11 +72,29 @@ def main():
                 
             # 4. Handle Rotation (Pan mapped to Yaw, Tilt mapped to Pitch)
             # Map normalized -1.0..1.0 to -100..100
-            yaw_speed = int(state["pan"] * 100)
-            pitch_speed = int(state["tilt"] * 100)
+            target_yaw = state["pan"] * 100.0
+            target_pitch = state["tilt"] * 100.0
+            
+            # YAW ACCELERATION
+            if target_yaw == 0:
+                current_yaw = 0.0 # Instant stop when released
+            elif current_yaw < target_yaw:
+                current_yaw = min(current_yaw + ACCEL_STEP, target_yaw)
+            elif current_yaw > target_yaw:
+                current_yaw = max(current_yaw - ACCEL_STEP, target_yaw)
+                
+            # PITCH ACCELERATION
+            if target_pitch == 0:
+                current_pitch = 0.0 # Instant stop when released
+            elif current_pitch < target_pitch:
+                current_pitch = min(current_pitch + ACCEL_STEP, target_pitch)
+            elif current_pitch > target_pitch:
+                current_pitch = max(current_pitch - ACCEL_STEP, target_pitch)
+            
+            yaw_speed = int(current_yaw)
+            pitch_speed = int(current_pitch)
             
             # Send rotation if it changed or if it's non-zero
-            # (Continuous sending is sometimes needed by gimbal, but sending on change reduces network load)
             if (yaw_speed != last_yaw_speed) or (pitch_speed != last_pitch_speed) or (yaw_speed != 0 or pitch_speed != 0):
                 camera.send_rotation_speed(yaw_speed, pitch_speed)
                 last_yaw_speed = yaw_speed

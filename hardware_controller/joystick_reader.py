@@ -40,6 +40,15 @@ class JoystickReader:
             self.chan_pan = AnalogIn(self.ads, 2)  # Pan (Yaw) on A2
             self.chan_tilt = AnalogIn(self.ads, 3) # Tilt (Pitch) on A3
             
+            # Auto-calibrate resting centers!
+            log.info("Auto-calibrating joystick centers... (reading 20 samples)")
+            time.sleep(0.5)
+            pan_samples = [self.chan_pan.voltage for _ in range(20)]
+            tilt_samples = [self.chan_tilt.voltage for _ in range(20)]
+            self.center_v_pan = sum(pan_samples) / 20.0
+            self.center_v_tilt = sum(tilt_samples) / 20.0
+            log.info(f"Calibrated Centers -> Pan: {self.center_v_pan:.3f}V | Tilt: {self.center_v_tilt:.3f}V")
+            
             # Buttons
             self.btn_center = Button(20, pull_up=True, bounce_time=0.1)
             self.btn_zoom_in = Button(10, pull_up=True, bounce_time=0.1)
@@ -47,18 +56,21 @@ class JoystickReader:
             self.btn_home = Button(9, pull_up=True, bounce_time=0.1)
         else:
             log.warning("Mock mode enabled. Returning dummy values.")
+            self.center_v_pan = 2.5
+            self.center_v_tilt = 2.5
 
-    def _apply_deadzone(self, voltage):
+    def _apply_deadzone(self, voltage, center_v):
         """Applies deadzone and returns normalized value -1.0 to 1.0 based on Voltage"""
-        diff = voltage - self.center_v
+        diff = voltage - center_v
         if abs(diff) < self.deadzone_v:
             return 0.0
         
-        # Normalize
+        # Normalize dynamically based on distance to max/min limits
         if diff > 0:
-            return min(1.0, diff / (self.max_v - self.center_v))
+            return min(1.0, diff / (self.max_v - center_v))
         else:
-            return max(-1.0, diff / self.center_v)
+            # We divide by center_v because that's the maximum distance to 0V
+            return max(-1.0, diff / center_v)
 
     def read_state(self):
         """
@@ -86,8 +98,8 @@ class JoystickReader:
         vol_tilt = self.chan_tilt.voltage
         
         return {
-            "pan": self._apply_deadzone(vol_pan),
-            "tilt": self._apply_deadzone(vol_tilt),
+            "pan": self._apply_deadzone(vol_pan, self.center_v_pan),
+            "tilt": self._apply_deadzone(vol_tilt, self.center_v_tilt),
             "btn_center": self.btn_center.is_pressed,
             "btn_zoom_in": self.btn_zoom_in.is_pressed,
             "btn_zoom_out": self.btn_zoom_out.is_pressed,
