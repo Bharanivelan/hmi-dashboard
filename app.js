@@ -693,9 +693,14 @@ const CameraPlayer = (() => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      // Force go2rtc to transcode the stream to H.264! 
+      // The SIYI ZR10 outputs H.265 by default. Windows laptops can play H.265 natively, 
+      // but Raspberry Pi Chromium completely lacks H.265 support and renders a blank white box.
+      const transcodeSrc = encodeURIComponent(`ffmpeg:${STREAM_NAME}#video=h264`);
+
       // Send to go2rtc, receive answer
       const resp = await fetch(
-        `${GO2RTC_BASE}/api/webrtc?src=${STREAM_NAME}`,
+        `${GO2RTC_BASE}/api/webrtc?src=${transcodeSrc}`,
         {
           method:  'POST',
           headers: { 'Content-Type': 'application/sdp' },
