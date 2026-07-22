@@ -37,9 +37,15 @@ class IgnitionController:
         # 3. Try Official Raspberry Pi DSI Touchscreen Backlight
         os.system("echo 0 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
         
-        # Launch Chromium to play the ignition animation
+        # Launch Chromium with full desktop environment variables (Handles both X11 and Wayland)
         home = os.environ.get("HOME", "/home/suresh")
-        cmd = f"DISPLAY=:0 XAUTHORITY={home}/.Xauthority chromium-browser --kiosk file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
+        cmd = (
+            f"export DISPLAY=:0; "
+            f"export WAYLAND_DISPLAY=wayland-1; "
+            f"export XDG_RUNTIME_DIR=/run/user/1000; "
+            f"export XAUTHORITY={home}/.Xauthority; "
+            f"chromium-browser --kiosk file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
+        )
         os.system(cmd)
 
     def ignition_off(self):
