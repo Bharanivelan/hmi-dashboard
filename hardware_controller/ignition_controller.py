@@ -44,7 +44,7 @@ class IgnitionController:
             f"export WAYLAND_DISPLAY=wayland-1; "
             f"export XDG_RUNTIME_DIR=/run/user/1000; "
             f"export XAUTHORITY={home}/.Xauthority; "
-            f"chromium-browser --kiosk file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
+            f"chromium --kiosk --password-store=basic file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
         )
         os.system(cmd)
 
