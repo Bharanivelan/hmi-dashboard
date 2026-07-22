@@ -50,16 +50,25 @@ class IgnitionController:
 
     def ignition_off(self):
         log.info("Key turned OFF -> Putting display to sleep.")
-        # Universal Display SLEEP (Shotgun approach for all display types)
-        # 1. Try standard X11 DPMS
-        os.system("xset -display :0 dpms force off > /dev/null 2>&1")
-        # 2. Try Broadcom HDMI power
-        os.system("vcgencmd display_power 0 > /dev/null 2>&1")
-        # 3. Try Official Raspberry Pi DSI Touchscreen Backlight
-        os.system("echo 1 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
+        # Kill current Chromium
+        os.system("pkill -o chromium")
+        os.system("pkill -o chromium-browser")
         
-        # Kill chromium so it starts fresh with the animation next time the key is turned ON
-        os.system("killall chromium-browser > /dev/null 2>&1")
+        # Since AMC is 3.3V, backlight won't turn off. 
+        # We launch a pitch-black webpage to simulate a powered-off screen!
+        home = os.environ.get("HOME", "/home/suresh")
+        cmd = (
+            f"export DISPLAY=:0; "
+            f"export WAYLAND_DISPLAY=wayland-1; "
+            f"export XDG_RUNTIME_DIR=/run/user/1000; "
+            f"export XAUTHORITY={home}/.Xauthority; "
+            f"chromium --kiosk --password-store=basic file://{home}/hmi-dashboard/black.html > /dev/null 2>&1 &"
+        )
+        os.system(cmd)
+        
+        # Attempt hardware sleep anyway
+        os.system("DISPLAY=:0 xset dpms force off > /dev/null 2>&1")
+        os.system("echo 1 | sudo tee /sys/class/backlight/rpi_backlight/bl_power > /dev/null 2>&1")
 
 if __name__ == "__main__":
     try:

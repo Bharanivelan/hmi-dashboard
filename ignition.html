@@ -143,11 +143,9 @@
     </div>
 
     <script>
-        // The animation takes exactly 4.5 seconds to finish (0.5s delay + 2s bar + 2s text overlap).
-        // After 4.5 seconds, automatically redirect the browser to the Ubuntu Server Dashboard.
-        // If testing locally, you can change the IP back to localhost.
+        // After 4.5 seconds, automatically load the local Dashboard.
         setTimeout(() => {
-            window.location.href = "http://192.168.1.4"; 
+            window.location.href = "index.html"; 
         }, 4500);
     </script>
 </body>
