@@ -43,9 +43,9 @@ class IgnitionController:
         home = os.environ.get("HOME", "/home/suresh")
         cmd = (
             f"export DISPLAY=:0; "
-            f"export WAYLAND_DISPLAY=wayland-1; "
             f"export XDG_RUNTIME_DIR=/run/user/1000; "
             f"export XAUTHORITY={home}/.Xauthority; "
+            f"unset WAYLAND_DISPLAY; "
             f"chromium --kiosk --disable-accelerated-video-decode --disable-features=WebRtcHWDecoding --disable-web-security --allow-file-access-from-files --password-store=basic file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
         )
         os.system(cmd)
