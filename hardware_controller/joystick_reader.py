@@ -36,9 +36,9 @@ class JoystickReader:
             # Initialize ADS1115 with 2/3 gain to safely read up to 6.144V
             self.ads = ADS.ADS1115(self.i2c, address=adc_i2c_address, gain=2/3)
             
-            # Channels
-            self.chan_pan = AnalogIn(self.ads, ADS.P2)  # Pan (Yaw) on A2
-            self.chan_tilt = AnalogIn(self.ads, ADS.P3) # Tilt (Pitch) on A3
+            # Channels (Using integers instead of ADS.P2 to avoid Adafruit library AttributeError)
+            self.chan_pan = AnalogIn(self.ads, 2)  # Pan (Yaw) on A2
+            self.chan_tilt = AnalogIn(self.ads, 3) # Tilt (Pitch) on A3
             
             # Buttons
             self.btn_center = Button(20, pull_up=True, bounce_time=0.1)
