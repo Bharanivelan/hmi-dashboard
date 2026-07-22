@@ -11,24 +11,26 @@ IGNITION_PIN = 4
 
 class IgnitionController:
     def __init__(self, pin=IGNITION_PIN):
-        # We use pull_up=False, meaning the circuit is LOW (0) by default.
-        # When the physical key switch is turned, it connects to 3.3V and goes HIGH (1).
         self.key_switch = Button(pin, pull_up=False, bounce_time=0.1)
+        self.last_state = -1
         
-        # Register event callbacks
-        self.key_switch.when_pressed = self.ignition_on
-        self.key_switch.when_released = self.ignition_off
+        # Reversed hardware logic:
+        # Released (0) = ON
+        # Pressed (1) = OFF
+        self.key_switch.when_pressed = self.ignition_off
+        self.key_switch.when_released = self.ignition_on
         
         log.info(f"Ignition Controller started on GPIO {pin}")
         
-        # Run an initial check to set the display state based on the physical key position at boot
+        # Initial check at boot
         if self.key_switch.is_pressed:
-            self.ignition_on()
-        else:
             self.ignition_off()
+        else:
+            self.ignition_on()
 
     def ignition_on(self):
         log.info("Key turned ON -> Waking up display.")
+        self.last_state = 1
         # Universal Display WAKEUP (Shotgun approach for all display types)
         # 1. Try standard X11 DPMS (Works for most GUI displays)
         os.system("xset -display :0 dpms force on > /dev/null 2>&1")
@@ -44,7 +46,7 @@ class IgnitionController:
             f"export WAYLAND_DISPLAY=wayland-1; "
             f"export XDG_RUNTIME_DIR=/run/user/1000; "
             f"export XAUTHORITY={home}/.Xauthority; "
-            f"chromium --kiosk --password-store=basic file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
+            f"chromium --kiosk --disable-web-security --allow-file-access-from-files --password-store=basic file://{home}/hmi-dashboard/ignition.html > /dev/null 2>&1 &"
         )
         os.system(cmd)
 
