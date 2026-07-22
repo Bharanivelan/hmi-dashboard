@@ -693,14 +693,9 @@ const CameraPlayer = (() => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      // We MUST use the SIYI camera's native H.264 sub-stream. 
-      // The main stream is H.265, which Raspberry Pi Chromium cannot decode (resulting in a white screen).
-      // We pass the raw RTSP URL to go2rtc so it acts as a pure proxy without needing ffmpeg!
-      const transcodeSrc = encodeURIComponent("rtsp://192.168.1.20:8554/sub.264");
-
       // Send to go2rtc, receive answer
       const resp = await fetch(
-        `${GO2RTC_BASE}/api/webrtc?src=${transcodeSrc}`,
+        `${GO2RTC_BASE}/api/webrtc?src=${STREAM_NAME}`,
         {
           method:  'POST',
           headers: { 'Content-Type': 'application/sdp' },
